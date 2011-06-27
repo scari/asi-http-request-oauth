@@ -76,7 +76,7 @@ static const NSString *oauthVersion = @"1.0";
 
 - (NSString *)oauthBaseStringURI
 {
-    NSAssert([self.url host] != nil, @"URL host missing: %@", [self.url absoluteString]);
+    NSAssert1([self.url host] != nil, @"URL host missing: %@", [self.url absoluteString]);
 
     // Port need only be present if it's not the default
     NSString *hostString;
