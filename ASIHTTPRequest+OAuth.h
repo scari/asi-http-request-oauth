@@ -31,4 +31,13 @@ typedef enum _ASIOAuthSignatureMethod {
                                verifier:(NSString *)verifier
                             usingMethod:(ASIOAuthSignatureMethod)signatureMethod;
 
++ (NSArray *)oauthGenerateTimestampAndNonce;
+
++ (NSString *)oauthGeneratePlaintextSignatureFor:(NSString *)baseString
+                                withClientSecret:(NSString *)clientSecret
+                                  andTokenSecret:(NSString *)tokenSecret;
+
++ (NSString *)oauthGenerateHMAC_SHA1SignatureFor:(NSString *)baseString
+                                withClientSecret:(NSString *)clientSecret
+                                  andTokenSecret:(NSString *)tokenSecret;
 @end

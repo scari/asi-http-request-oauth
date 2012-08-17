@@ -29,7 +29,7 @@ static const NSString *oauthVersion = @"1.0";
 #pragma mark -
 #pragma mark Timestamp and nonce handling
 
-- (NSArray *)oauthGenerateTimestampAndNonce
++ (NSArray *)oauthGenerateTimestampAndNonce
 {
     static time_t last_timestamp = -1;
     static NSMutableSet *nonceHistory = nil;
@@ -57,7 +57,7 @@ static const NSString *oauthVersion = @"1.0";
                 nonceBytes[i] = '0' + byte - 52;
         }
         
-        timestamp = [NSString stringWithFormat:@"%d", tv.tv_sec];
+        timestamp = [NSString stringWithFormat:@"%ld", tv.tv_sec];
         nonce = [NSString stringWithFormat:@"%.16s", nonceBytes];
     } while ((tv.tv_sec == last_timestamp) && [nonceHistory containsObject:nonce]);
     
@@ -168,7 +168,7 @@ static const NSString *oauthVersion = @"1.0";
 #pragma mark -
 #pragma mark Signing algorithms
 
-- (NSString *)oauthGeneratePlaintextSignatureFor:(NSString *)baseString
++ (NSString *)oauthGeneratePlaintextSignatureFor:(NSString *)baseString
                                 withClientSecret:(NSString *)clientSecret
                                   andTokenSecret:(NSString *)tokenSecret
 {
@@ -176,7 +176,7 @@ static const NSString *oauthVersion = @"1.0";
     return [NSString stringWithFormat:@"%@&%@", clientSecret != nil ? [clientSecret encodeForURL] : @"", tokenSecret != nil ? [tokenSecret encodeForURL] : @""];
 }
 
-- (NSString *)oauthGenerateHMAC_SHA1SignatureFor:(NSString *)baseString
++ (NSString *)oauthGenerateHMAC_SHA1SignatureFor:(NSString *)baseString
                                 withClientSecret:(NSString *)clientSecret
                                   andTokenSecret:(NSString *)tokenSecret
 {
@@ -231,7 +231,7 @@ static const NSString *oauthVersion = @"1.0";
     if (verifier != nil)
         [oauthParameters addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"oauth_verifier", @"key", verifier, @"value", nil]];
     [oauthParameters addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"oauth_signature_method", @"key", oauthSignatureMethodName[signatureMethod], @"value", nil]];
-    [oauthParameters addObjectsFromArray:[self oauthGenerateTimestampAndNonce]];    
+    [oauthParameters addObjectsFromArray:[ASIHTTPRequest oauthGenerateTimestampAndNonce]];    
     [oauthParameters addObjectsFromArray:[self oauthAdditionalParametersForMethod:signatureMethod]];
     
     // Construct the signature base string
@@ -243,10 +243,10 @@ static const NSString *oauthVersion = @"1.0";
     NSString *signature;
     switch (signatureMethod) {
         case ASIOAuthPlaintextSignatureMethod:
-            signature = [self oauthGeneratePlaintextSignatureFor:baseString withClientSecret:clientSecret andTokenSecret:tokenSecret];
+            signature = [ASIHTTPRequest oauthGeneratePlaintextSignatureFor:baseString withClientSecret:clientSecret andTokenSecret:tokenSecret];
             break;
         case ASIOAuthHMAC_SHA1SignatureMethod:
-            signature = [self oauthGenerateHMAC_SHA1SignatureFor:baseString withClientSecret:clientSecret andTokenSecret:tokenSecret];
+            signature = [ASIHTTPRequest oauthGenerateHMAC_SHA1SignatureFor:baseString withClientSecret:clientSecret andTokenSecret:tokenSecret];
             break;
     }
     [oauthParameters addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"oauth_signature", @"key", signature, @"value", nil]];
